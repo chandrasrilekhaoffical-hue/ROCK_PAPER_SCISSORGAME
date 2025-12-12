@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rock Paper Scissors</title>
+
+  <style>
+    :root{
+      --accent:#ff00c8;
+      --win:#37ff00;
+      --lose:#ff1e1e;
+      --muted:#d7d7d7;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:Inter,system-ui;
+
+      /* 🔥 Updated Background Image (new) */
+      background-image:url("https://wallpapercave.com/wp/wp8937247.jpg");
+
+      background-size:cover;
+      background-position:center;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      backdrop-filter:blur(3px);
+    }
+
+    .wrap{
+      width:100%;
+      max-width:900px;
+      background:rgba(0,0,0,0.65);
+      color:white;
+      border-radius:14px;
+      padding:22px;
+      box-shadow:0 0 25px rgba(255,0,255,0.4);
+    }
+
+    h1{
+      margin:0;
+      font-size:26px;
+      font-weight:700;
+      color:#fff;
+      text-shadow:0 0 10px var(--accent);
+    }
+
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:20px;
+      padding-bottom:10px;
+      border-bottom:1px solid rgba(255,255,255,0.2);
+    }
+
+    .score{
+      background:rgba(255,255,255,0.1);
+      padding:10px 14px;
+      border-radius:10px;
+      min-width:110px;
+      text-align:center;
+      box-shadow:0 0 8px rgba(255,255,255,0.2);
+    }
+
+    .score b{
+      display:block;
+      font-size:22px;
+      color:#00eaff;
+    }
+
+    .board{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+      margin-top:10px;
+    }
+
+    .choices{
+      display:flex;
+      gap:14px;
+      justify-content:center;
+      background:rgba(255,255,255,0.1);
+      padding:20px;
+      border-radius:10px;
+      box-shadow:0 0 10px rgba(0,255,255,0.3);
+    }
+
+    .btn{
+      background:rgba(255,255,255,0.2);
+      border:2px solid transparent;
+      padding:14px 22px;
+      border-radius:10px;
+      cursor:pointer;
+      font-size:16px;
+      min-width:110px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      color:white;
+      transition:0.3s ease;
+    }
+
+    .btn:hover{
+      transform:scale(1.08);
+      box-shadow:0 0 20px var(--accent);
+      border-color:var(--accent);
+    }
+
+    .icon{
+      font-size:34px;
+    }
+
+    .label{
+      font-size:14px;
+      color:#f0f0f0;
+    }
+
+    .result{
+      background:rgba(0,0,0,0.4);
+      box-shadow:0 0 15px rgba(0,255,255,0.4);
+      padding:20px;
+      border-radius:10px;
+      text-align:center;
+    }
+
+    .big{
+      font-size:42px;
+    }
+
+    .highlight-win{
+      color:var(--win);
+      font-weight:700;
+      text-shadow:0 0 10px var(--win);
+    }
+
+    .highlight-lose{
+      color:var(--lose);
+      font-weight:700;
+      text-shadow:0 0 10px var(--lose);
+    }
+
+    .controls{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      margin-top:10px;
+    }
+
+    .ghost{
+      background:rgba(255,255,255,0.15);
+      border:1px solid rgba(255,255,255,0.4);
+      padding:8px 12px;
+      color:white;
+      border-radius:8px;
+      cursor:pointer;
+      transition:0.2s;
+    }
+
+    .ghost:hover{
+      background:rgba(255,255,255,0.3);
+      box-shadow:0 0 10px #fff;
+    }
+
+    footer{
+      margin-top:14px;
+      text-align:center;
+      color:#ddd;
+      font-size:13px;
+      opacity:0.8;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrap">
+    <header>
+      <h1>Rock · Paper · Scissors</h1>
+
+      <div style="display:flex;gap:10px">
+        <div class="score">
+          <small>You</small>
+          <b id="userScore">0</b>
+        </div>
+
+        <div class="score">
+          <small>Computer</small>
+          <b id="compScore">0</b>
+        </div>
+      </div>
+    </header>
+
+    <main class="board">
+      <section class="choices">
+        <button class="btn" data-choice="rock">
+          <div class="icon">✊</div>
+          <div class="label">Rock</div>
+        </button>
+
+        <button class="btn" data-choice="paper">
+          <div class="icon">✋</div>
+          <div class="label">Paper</div>
+        </button>
+
+        <button class="btn" data-choice="scissors">
+          <div class="icon">✌️</div>
+          <div class="label">Scissors</div>
+        </button>
+      </section>
+
+      <section class="result">
+        <div class="muted">Computer chose</div>
+        <div id="compChoice" class="big">—</div>
+
+        <div id="resultText" class="text">Make your move</div>
+
+        <div class="controls">
+          <button class="ghost" id="btnReset">Reset</button>
+          <button class="ghost" id="btnNext">Next</button>
+        </div>
+      </section>
+    </main>
+
+    <footer>Colorful Rock Paper Scissors Game</footer>
+  </div>
+<script>
+let userScore = 0, compScore = 0;
+
+const userScoreEl = document.getElementById("userScore");
+const compScoreEl = document.getElementById("compScore");
+const compChoiceEl = document.getElementById("compChoice");
+const resultTextEl = document.getElementById("resultText");
+const buttons = document.querySelectorAll(".btn");
+
+const emoji = { rock: "✊", paper: "✋", scissors: "✌️" };
+
+// 🔊 Added Sounds
+const winSound = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.wav");
+const loseSound = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.wav");
+
+winSound.volume = 1.0;
+loseSound.volume = 0.9;
+
+function getComputerChoice() {
+  return ["rock", "paper", "scissors"][Math.floor(Math.random() * 3)];
+}
+
+function decide(player, comp) {
+  if (player === comp) return "draw";
+  if (
+    (player === "rock" && comp === "scissors") ||
+    (player === "paper" && comp === "rock") ||
+    (player === "scissors" && comp === "paper")
+  ) return "win";
+  return "lose";
+}
+
+function play(choice) {
+  const comp = getComputerChoice();
+  const result = decide(choice, comp);
+
+  compChoiceEl.textContent = emoji[comp];
+
+  if (result === "win") {
+    winSound.play();
+    userScore++;
+    userScoreEl.textContent = userScore;
+    resultTextEl.textContent = `You Win! ${choice} beats ${comp}`;
+    resultTextEl.className = "highlight-win";
+  } else if (result === "lose") {
+    loseSound.play();
+    compScore++;
+    compScoreEl.textContent = compScore;
+    resultTextEl.textContent = `You Lose! ${comp} beats ${choice}`;
+    resultTextEl.className = "highlight-lose";
+  } else {
+    resultTextEl.textContent = "Draw!";
+    resultTextEl.className = "text";
+  }
+
+  flash(compChoiceEl);
+}
+
+function flash(el) {
+  if (el.animate) { // Added safety check
+    el.animate(
+      [
+        { transform: "scale(0.8)", opacity: 0.3 },
+        { transform: "scale(1.3)", opacity: 1 },
+        { transform: "scale(1)", opacity: 1 }
+      ],
+      { duration: 300 }
+    );
+  }
+}
+
+// Event listeners
+buttons.forEach(btn => {
+  btn.addEventListener("click", () => play(btn.dataset.choice));
+});
+
+document.getElementById("btnReset").onclick = () => {
+  userScore = 0;
+  compScore = 0;
+  userScoreEl.textContent = 0;
+  compScoreEl.textContent = 0;
+  compChoiceEl.textContent = "—";
+  resultTextEl.textContent = "Make your move";
+  resultTextEl.className = "text";
+};
+
+document.getElementById("btnNext").onclick = () => {
+  compChoiceEl.textContent = "—";
+  resultTextEl.textContent = "Make your move";
+  resultTextEl.className = "text";
+};
+</script>
+
+  
+
+</body>
+</html>
